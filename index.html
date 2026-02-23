@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deploy Test</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        .card {
+            text-align: center;
+            padding: 3rem;
+            border-radius: 12px;
+            background: #16213e;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+        }
+        h1 { margin: 0 0 1rem; color: #e94560; }
+        .version { font-size: 3rem; font-weight: bold; color: #0f3460; background: #e94560; padding: 0.5rem 1.5rem; border-radius: 8px; display: inline-block; color: #fff; }
+        .timestamp { margin-top: 1.5rem; color: #888; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Coolify Deploy Test</h1>
+        <div class="version">v1</div>
+        <p>If you see this, the deploy worked.</p>
+        <p class="timestamp">Change the version above, push, and watch Coolify redeploy.</p>
+    </div>
+</body>
+</html>
