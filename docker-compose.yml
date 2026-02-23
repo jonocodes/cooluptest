@@ -5,4 +5,4 @@ services:
       args:
         GIT_COMMIT: ${GIT_COMMIT:-unknown}
     ports:
-      - "80:80"
+      - "8112:80"
