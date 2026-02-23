@@ -1,8 +1,8 @@
 services:
-  web:
+  coocad:
     build:
       context: .
       args:
         GIT_COMMIT: ${GIT_COMMIT:-unknown}
     ports:
-      - "8112:80"
+      - "8111:80"
