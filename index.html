@@ -25,6 +25,8 @@
         h1 { margin: 0 0 1rem; color: #e94560; }
         .version { font-size: 3rem; font-weight: bold; color: #0f3460; background: #e94560; padding: 0.5rem 1.5rem; border-radius: 8px; display: inline-block; color: #fff; }
         .timestamp { margin-top: 1.5rem; color: #888; font-size: 0.9rem; }
+        .commit { margin-top: 1rem; font-family: monospace; font-size: 0.85rem; color: #666; word-break: break-all; }
+        .commit code { background: #0d1b2a; padding: 0.2rem 0.6rem; border-radius: 4px; color: #e94560; }
     </style>
 </head>
 <body>
@@ -32,6 +34,7 @@
         <h1>Coolify Deploy Test</h1>
         <div class="version">v1</div>
         <p>If you see this, the deploy worked.</p>
+        <p class="commit">Commit: <code>__GIT_COMMIT__</code></p>
         <p class="timestamp">Change the version above, push, and watch Coolify redeploy.</p>
     </div>
 </body>
