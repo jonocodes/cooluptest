@@ -1,4 +1,16 @@
 services:
+  caddy:
+    image: caddy:alpine
+    ports:
+      - "8111:80"
+    # volumes:
+    # - ./Caddyfile:/etc/caddy/Caddyfile
+    configs:
+      - source: caddyfile
+        target: /etc/caddy/Caddyfile
+    depends_on:
+      - flask
+
   flask:
     build:
       context: ./app
@@ -12,12 +24,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
-  caddy:
-    image: caddy:alpine
-    restart: unless-stopped
-    ports:
-      - "8111:80"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-    depends_on:
-      - flask
+configs:
+  caddyfile:
+    content: |
+      :80 {
+        reverse_proxy flask:5000
+      }
