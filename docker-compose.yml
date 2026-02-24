@@ -1,8 +1,21 @@
 services:
-  coocad:
+  flask:
     build:
-      context: .
+      context: ./app
       args:
         GIT_COMMIT: ${GIT_COMMIT:-unknown}
+        IMAGE_NAME: ${IMAGE_NAME:-cooluptest/flask}
+        BUILD_DATE: ${BUILD_DATE:-unknown}
+    restart: unless-stopped
+    expose:
+      - "5000"
+
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
     ports:
       - "8111:80"
+    depends_on:
+      - flask

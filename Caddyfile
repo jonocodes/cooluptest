@@ -1,4 +1,3 @@
 :80 {
-	root * /srv
-	file_server
+	reverse_proxy flask:5000
 }
