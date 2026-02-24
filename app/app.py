@@ -166,7 +166,7 @@ def index():
     <div class="container">
         <h1>Flask + Caddy <span class="badge">Production</span></h1>
 
-        <h2>test value: v2</h2>
+        <h2>test value: v3</h2>
         
         <div class="card">
             <h2>Build Info</h2>
