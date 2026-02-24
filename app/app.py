@@ -92,7 +92,7 @@ def index():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask + Caddy Production App</title>
+    <title>Cool Up Test App</title>
     <style>
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
@@ -166,6 +166,8 @@ def index():
     <div class="container">
         <h1>Flask + Caddy <span class="badge">Production</span></h1>
 
+        <h2>test value: v2</h2>
+        
         <div class="card">
             <h2>Build Info</h2>
             <div class="row">
