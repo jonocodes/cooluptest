@@ -9,13 +9,15 @@ services:
     restart: unless-stopped
     expose:
       - "5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
   caddy:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: caddy:alpine
     restart: unless-stopped
     ports:
       - "8111:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
     depends_on:
       - flask
