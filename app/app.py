@@ -1,7 +1,10 @@
 import os
+import hashlib
 import socket
 from datetime import datetime, timezone
+from pathlib import Path
 
+import docker
 from flask import Flask
 
 app = Flask(__name__)
@@ -12,8 +15,78 @@ IMAGE_NAME = os.environ.get("IMAGE_NAME", "unknown")
 BUILD_DATE = os.environ.get("BUILD_DATE", "unknown")
 
 
+def get_container_id():
+    """Get the current container ID from /proc/self/cgroup or hostname."""
+    try:
+        cgroup = Path("/proc/self/cgroup").read_text()
+        for line in cgroup.strip().splitlines():
+            if "docker" in line or "containerd" in line:
+                return line.rstrip().split("/")[-1][:12]
+    except Exception:
+        pass
+    # In many Docker setups the hostname IS the short container ID
+    return socket.gethostname()
+
+
+def get_docker_info():
+    """Query the Docker daemon for image and container details."""
+    info = {
+        "container_id": get_container_id(),
+        "image_id": "unavailable",
+        "image_digest": "unavailable",
+        "container_name": "unavailable",
+    }
+    try:
+        client = docker.from_env()
+        hostname = socket.gethostname()
+
+        # Find our own container by matching hostname to short container ID
+        for container in client.containers.list():
+            if container.short_id.replace("sha256:", "").startswith(hostname[:12]):
+                info["container_id"] = container.short_id
+                info["container_name"] = container.name
+                # Image info
+                image = container.image
+                info["image_id"] = image.short_id.replace("sha256:", "")
+                if image.attrs.get("RepoDigests"):
+                    info["image_digest"] = image.attrs["RepoDigests"][0].split("@")[-1][:19] + "…"
+                break
+        client.close()
+    except Exception:
+        pass
+    return info
+
+
+def get_env_table():
+    """Return a curated set of environment variables relevant to Docker/deployment."""
+    keys = [
+        "GIT_COMMIT", "IMAGE_NAME", "BUILD_DATE",
+        "HOSTNAME", "PATH",
+        "PYTHONUNBUFFERED", "LANG",
+        "HOME", "GUNICORN_CMD_ARGS",
+    ]
+    env = {}
+    for k in keys:
+        v = os.environ.get(k)
+        if v is not None:
+            env[k] = v
+    return env
+
+
 @app.route("/")
 def index():
+    dinfo = get_docker_info()
+    env_vars = get_env_table()
+
+    env_rows = ""
+    for k, v in env_vars.items():
+        display_v = v if len(v) <= 60 else v[:57] + "…"
+        env_rows += f"""
+            <div class="row">
+                <span class="label">{k}</span>
+                <span class="value">{display_v}</span>
+            </div>"""
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -94,7 +167,7 @@ def index():
         <h1>Flask + Caddy <span class="badge">Production</span></h1>
 
         <div class="card">
-            <h2>Docker Info</h2>
+            <h2>Build Info</h2>
             <div class="row">
                 <span class="label">Image</span>
                 <span class="value">{IMAGE_NAME}</span>
@@ -106,6 +179,26 @@ def index():
             <div class="row">
                 <span class="label">Built</span>
                 <span class="value">{BUILD_DATE}</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Docker Info</h2>
+            <div class="row">
+                <span class="label">Container ID</span>
+                <span class="value">{dinfo['container_id']}</span>
+            </div>
+            <div class="row">
+                <span class="label">Container Name</span>
+                <span class="value">{dinfo['container_name']}</span>
+            </div>
+            <div class="row">
+                <span class="label">Image ID</span>
+                <span class="value">{dinfo['image_id']}</span>
+            </div>
+            <div class="row">
+                <span class="label">Image Digest</span>
+                <span class="value">{dinfo['image_digest']}</span>
             </div>
         </div>
 
@@ -127,6 +220,11 @@ def index():
                 <span class="label">Reverse Proxy</span>
                 <span class="value status-ok">Caddy</span>
             </div>
+        </div>
+
+        <div class="card">
+            <h2>Container Environment</h2>
+            {env_rows}
         </div>
 
         <footer>Served by Gunicorn behind Caddy</footer>
